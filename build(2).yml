@@ -1,0 +1,99 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Compilar launcher Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar SDK necessário
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.5'
+
+      - name: Restaurar chave de teste para manter atualizações instaláveis
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: meu-launcher-debug-signing-v1
+
+      - name: Extrair o projeto
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f "projeto.zip" ]]; then
+            best="projeto.zip"
+          else
+            best=""
+            for f in *.zip; do
+              [[ -f "$f" ]] || continue
+              best="$f"
+            done
+          fi
+          if [[ -z "$best" ]]; then
+            echo "ERRO: não encontrei projeto.zip (ou outro ZIP) na raiz do repositório."
+            exit 1
+          fi
+          echo "Projeto selecionado: $best"
+          mkdir -p proj
+          unzip -q "$best" -d proj
+          if [[ ! -f proj/settings.gradle.kts || ! -f proj/app/build.gradle.kts ]]; then
+            echo "ERRO: o ZIP não contém a estrutura Gradle esperada na raiz."
+            find proj -maxdepth 3 -type f | head -80
+            exit 1
+          fi
+
+      - name: Preparar chave de assinatura (opcional)
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${KEYSTORE_BASE64:-}" ]]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/release.jks"
+            echo "ANDROID_KEYSTORE_PATH=$GITHUB_WORKSPACE/release.jks" >> "$GITHUB_ENV"
+            echo "Chave privada do projeto encontrada; será usada para assinar o APK."
+          else
+            echo "Nenhuma chave privada configurada: será usada a assinatura debug para testes."
+            echo "AVISO: APKs de builds diferentes podem exigir desinstalar a versão anterior antes de atualizar."
+          fi
+
+      - name: Compilar APK release
+        working-directory: proj
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: gradle :app:assembleRelease --no-daemon
+
+      - name: Publicar APK como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: Meu-Launcher-APK
+          path: proj/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          retention-days: 14
