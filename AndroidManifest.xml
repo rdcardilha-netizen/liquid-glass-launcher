@@ -1,60 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.DIAL" />
-            <data android:scheme="tel" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.SENDTO" />
-            <data android:scheme="smsto" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https" />
-        </intent>
-        <intent>
-            <action android:name="android.media.action.IMAGE_CAPTURE" />
-        </intent>
-    </queries>
-
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <application
-        android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/LauncherTheme">
-
+        android:allowBackup="true"
+        android:label="Liquid Glass Launcher Teste"
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTask"
-            android:resumeWhilePausing="true"
-            android:screenOrientation="portrait"
-            android:stateNotNeeded="true"
-            android:windowSoftInputMode="adjustNothing">
+            android:screenOrientation="unspecified">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <!-- Ícone do app: abre os ajustes do launcher -->
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/SettingsTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>

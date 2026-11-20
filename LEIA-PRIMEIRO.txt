@@ -1,0 +1,23 @@
+PROJETO TESTE - LIQUID GLASS LAUNCHER
+
+ESTRUTURA CORRETA:
+- app/                         codigo do aplicativo Android
+- build.gradle.kts             configuracao principal do Gradle
+- settings.gradle.kts          modulos do projeto
+- gradle.properties            configuracoes do Gradle
+- .github/workflows/build.yml  compilacao automatica no GitHub Actions
+- build.yml                    copia visivel do workflow (referencia)
+
+IMPORTANTE:
+1. Envie o CONTEUDO desta pasta Projeto-Teste para a raiz do repositorio GitHub.
+2. O workflow precisa ficar exatamente em .github/workflows/build.yml.
+3. A pasta .github pode ficar oculta em alguns gerenciadores Android. Ative a opcao
+   para mostrar arquivos ocultos ao preparar o upload. Se nao conseguir, nao envie
+   apenas o app: sera necessario criar o caminho .github/workflows no GitHub e colocar
+   nele o conteudo do arquivo build.yml.
+4. Depois de enviar, abra a aba Actions do repositorio e aguarde o workflow terminar.
+   O APK de teste sera publicado como artefato chamado liquid-glass-launcher-teste.
+
+ESTADO DO TESTE:
+Este pacote contem o codigo-fonte e o workflow. O APK ainda precisa ser compilado
+pelo GitHub Actions; a criacao deste ZIP nao significa que a compilacao ja foi validada.
